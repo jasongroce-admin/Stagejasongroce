@@ -1,0 +1,150 @@
+:root {
+  --bg: #0f1d24;
+  --panel: #1f2f36;
+  --panel-2: #273b43;
+  --text: #effcff;
+  --accent: #6adfff;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: radial-gradient(circle at top, #21414c, var(--bg));
+  color: var(--text);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+body {
+  padding: max(0.55rem, env(safe-area-inset-top)) max(0.55rem, env(safe-area-inset-right)) max(0.55rem, env(safe-area-inset-bottom));
+}
+
+.shell {
+  width: min(1280px, 99vw);
+  margin: 0 auto;
+}
+
+.hud-top {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.55rem;
+  background: var(--panel);
+  border: 2px solid #385764;
+  border-radius: 16px;
+  padding: 0.7rem 1rem;
+}
+
+.game-wrap {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 0.8rem;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  border: 2px solid #406470;
+  background: #37584a;
+  touch-action: none;
+}
+
+.side-panel {
+  background: var(--panel);
+  border: 2px solid #385764;
+  border-radius: 16px;
+  padding: 0.9rem;
+}
+
+h2,
+h3 {
+  margin: 0.2rem 0 0.5rem;
+}
+
+.table-card,
+.controls-card {
+  background: var(--panel-2);
+  border-radius: 12px;
+  padding: 0.65rem;
+  margin: 0.65rem 0;
+}
+
+button,
+.portal-link {
+  background: radial-gradient(circle at 30% 20%, #67afc3, #2e6778);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.55rem 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.time-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(17, 33, 46, 0.7);
+  border: 1px solid #4a6e7a;
+  border-radius: 999px;
+  padding: 0.4rem 0.7rem;
+}
+
+.time-label select {
+  border-radius: 999px;
+  background: #12303f;
+  border: 1px solid #4f859a;
+  color: #e8f9ff;
+  padding: 0.25rem 0.5rem;
+}
+
+.portal-link {
+  margin-top: 0.75rem;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(4, 8, 10, 0.75);
+}
+
+.modal-content {
+  width: min(560px, 90vw);
+  background: #17323d;
+  border: 2px solid #4f8ca4;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .hud-top {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .game-wrap {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,424 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>Checkers Deluxe: Elite</title>
+    <link rel="stylesheet" href="../../assets/css/site.css">
+    <style>
+        :root {
+            --cell-size: min(12vw, 85px);
+            --light-cell: #f0d9b5;
+            --dark-cell: #b58863;
+            --accent: #79d3ff;
+        }
+        body {
+            color: #e6edf3;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            padding: 0;
+            margin: 0;
+            transition: background 0.5s ease;
+        }
+
+        .checkers-shell {
+            width: min(1160px, calc(100vw - 2rem));
+            margin: 0 auto;
+            padding: max(1rem, env(safe-area-inset-top)) 0 max(1rem, env(safe-area-inset-bottom));
+            display: grid;
+            gap: 1rem;
+        }
+
+        .checkers-shell .site-header {
+            position: relative;
+            top: 0;
+        }
+        .controls {
+            background: #161b22;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #30363d;
+        }
+        .board-container {
+            padding: 15px;
+            background: #2c2118;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), inset 0 0 80px rgba(0,0,0,0.4);
+            border: 12px solid #3d2a1f;
+        }
+
+        .board-stack {
+            display: grid;
+            justify-items: center;
+            gap: 1rem;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, var(--cell-size));
+            grid-template-rows: repeat(8, var(--cell-size));
+            border: 2px solid rgba(0,0,0,0.3);
+        }
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .cell.light { background-color: var(--light-cell); }
+        .cell.dark { background-color: var(--dark-cell); }
+        .cell.selected { box-shadow: inset 0 0 0 4px var(--accent); z-index: 5; }
+        .cell.hint::after {
+            content: "";
+            width: 30%;
+            height: 30%;
+            background: rgba(125, 255, 177, 0.6);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(125, 255, 177, 0.8);
+        }
+        .piece-wrap {
+            width: 86%;
+            height: 86%;
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        .king-crown {
+            position: absolute;
+            top: 5%;
+            width: 100%;
+            text-align: center;
+            font-size: 1.6rem;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+        }
+        .status-pill {
+            padding: 12px 40px;
+            background: #1f2937;
+            border-radius: 100px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 2px solid #374151;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        #timer { color: #f87171; font-family: monospace; margin-top: 10px; font-size: 1.1rem; }
+        select, button {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #endTurnBtn { background: #238636; color: white; border: none; }
+    </style>
+</head>
+<body>
+    <main class="checkers-shell">
+        <header class="site-header">
+            <a class="brand-lockup" href="../../index.html">
+                <strong>Jason Groce</strong>
+                <span>Games, Tools & Projects</span>
+            </a>
+            <nav class="site-menu" aria-label="Primary">
+                <a class="menu-link" href="../../index.html">Home</a>
+                <a class="menu-link" href="../../utilities/index.html">Utilities</a>
+                <a class="menu-link" href="../firefighter-game/mobile.html">Firefighter</a>
+                <a class="menu-link active" href="index.html">Board Games</a>
+                <a class="menu-link" href="../work-in-progress/index.html">Lab</a>
+                <a class="menu-link" href="../archive/index.html">Archive</a>
+            </nav>
+        </header>
+
+        <section class="panel board-stack">
+    <div class="controls">
+        <div>
+            <label>Mode </label>
+            <select id="mode">
+                <option value="classic">Classic</option>
+                <option value="giveaway">Giveaway Mode (Lose to Win)</option>
+                <option value="blitz">Blitz (15s)</option>
+                <option value="rapid">Rapid (25s)</option>
+            </select>
+        </div>
+        <div>
+            <label>Difficulty </label>
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+                <option value="champion">Checkers Champion</option>
+            </select>
+        </div>
+        <div>
+            <label>Theme </label>
+            <select id="theme">
+                <option value="0">Classic Wood</option>
+                <option value="8">Retro Cyber</option>
+                <option value="9">Volcanic</option>
+                <option value="10">Royal Velvet</option>
+                <option value="1">Marble</option>
+                <option value="2">Ocean</option>
+                <option value="6">Galaxy</option>
+            </select>
+        </div>
+        <button id="resetBtn">New Game</button>
+        <button id="endTurnBtn" style="display:none;">End Multi-Jump</button>
+    </div>
+    <div class="board-container" id="frame">
+        <div class="board" id="board"></div>
+    </div>
+    <div style="margin-top:20px; text-align:center;">
+        <div class="status-pill" id="status">Your Turn</div>
+        <div id="timer"></div>
+    </div>
+        </section>
+
+    <script>
+        const THEMES = [
+            {light:"#f0d9b5", dark:"#b58863", frame:"#3d2a1f", bg:"#0d1117"},
+            {light:"#e5e5e5", dark:"#4a4a4a", frame:"#222", bg:"#111"},
+            {light:"#a0d8ff", dark:"#0b4e7a", frame:"#052c46", bg:"#001"},
+            {light:"#c8e6b8", dark:"#2d5a27", frame:"#1a3316", bg:"#010"},
+            {light:"#333", dark:"#000", frame:"#111", bg:"#000"},
+            {light:"#f5d9b0", dark:"#9c6640", frame:"#5c3c26", bg:"#1a0f0a"},
+            {light:"#d0c0ff", dark:"#1e0f33", frame:"#0f071a", bg:"#05020a"},
+            {light:"#ffffff", dark:"#222222", frame:"#000", bg:"#0a0a0a"},
+            {light:"#1a1a2e", dark:"#16213e", frame:"#0f3460", bg:"#1a1a2e", accent:"#e94560"},
+            {light:"#420d09", dark:"#000000", frame:"#2a0000", bg:"#0d0202", accent:"#ff4500"},
+            {light:"#581845", dark:"#2a0a20", frame:"#900c3f", bg:"#1a0514", accent:"#ffc300"}
+        ];
+
+        let board = [];
+        let turn = 'r';
+        let sel = null;
+        let isJumping = false;
+        let timerId = null;
+
+        const boardEl = document.getElementById('board');
+        const statusEl = document.getElementById('status');
+        const endTurnBtn = document.getElementById('endTurnBtn');
+
+        function init() {
+            board = Array.from({length: 8}, (_, r) =>
+                Array.from({length: 8}, (_, c) => {
+                    if ((r + c) % 2 !== 0) {
+                        if (r < 3) return 'b';
+                        if (r > 4) return 'r';
+                    }
+                    return null;
+                })
+            );
+            turn = 'r';
+            sel = null;
+            isJumping = false;
+            endTurnBtn.style.display = 'none';
+            resetTimer();
+            render();
+        }
+
+        function getPieceSVG(type) {
+            const isRed = type.toLowerCase() === 'r';
+            const base = isRed ? "#d32f2f" : "#1a237e";
+            const top = isRed ? "#ff5252" : "#3949ab";
+            return `
+                <svg viewBox="0 0 100 100" class="piece-wrap">
+                    <circle cx="50" cy="54" r="45" fill="rgba(0,0,0,0.4)" />
+                    <circle cx="50" cy="50" r="45" fill="${base}" stroke="#000" stroke-width="2"/>
+                    <circle cx="50" cy="48" r="42" fill="${top}" />
+                    <circle cx="50" cy="48" r="34" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="3" />
+                    <circle cx="50" cy="48" r="24" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="2" />
+                    <text x="50" y="56" text-anchor="middle" fill="white" font-size="20" font-family="Arial Black" font-weight="900" opacity="0.8">${isRed?'WG':'TG'}</text>
+                </svg>`;
+        }
+
+        function getMoves(r, c, jumpOnly = false) {
+            const p = board[r][c];
+            if (!p) return [];
+            const moves = [];
+            const isKing = p === 'R' || p === 'B';
+            const owner = p.toLowerCase();
+            const dirs = isKing ? [[1,1],[1,-1],[-1,1],[-1,-1]] : (owner === 'r' ? [[-1,1],[-1,-1]] : [[1,1],[1,-1]]);
+
+            dirs.forEach(([dr, dc]) => {
+                const nr = r + dr, nc = c + dc;
+                const jr = r + dr*2, jc = c + dc*2;
+
+                if (board[nr]?.[nc] && board[nr][nc].toLowerCase() !== owner && board[jr]?.[jc] === null) {
+                    moves.push({ from:[r,c], to:[jr,jc], isJump:true, victim:[nr,nc] });
+                }
+                if (!jumpOnly && board[nr]?.[nc] === null) {
+                    moves.push({ from:[r,c], to:[nr,nc], isJump:false });
+                }
+            });
+            return moves;
+        }
+
+        function handleClick(r, c) {
+            if (turn !== 'r') return;
+
+            if (sel && sel[0] === r && sel[1] === c) {
+                if (isJumping) finalizeTurn();
+                else { sel = null; render(); }
+                return;
+            }
+
+            if (!isJumping && board[r][c]?.toLowerCase() === 'r') {
+                sel = [r, c]; render(); return;
+            }
+
+            if (sel) {
+                const moves = getMoves(sel[0], sel[1], isJumping);
+                const m = moves.find(m => m.to[0] === r && m.to[1] === c);
+                if (m) applyMove(m);
+            }
+        }
+
+        function applyMove(m) {
+            const [fr, fc] = m.from, [tr, tc] = m.to;
+            board[tr][tc] = board[fr][fc];
+            board[fr][fc] = null;
+            if (m.isJump) board[m.victim[0]][m.victim[1]] = null;
+
+            if (board[tr][tc] === 'r' && tr === 0) board[tr][tc] = 'R';
+            if (board[tr][tc] === 'b' && tr === 7) board[tr][tc] = 'B';
+
+            if (m.isJump) {
+                const nextJumps = getMoves(tr, tc, true);
+                if (nextJumps.length > 0) {
+                    sel = [tr, tc];
+                    isJumping = true;
+                    if (turn === 'r') endTurnBtn.style.display = 'inline-block';
+                    render();
+                    return;
+                }
+            }
+
+            finalizeTurn();
+        }
+
+        function finalizeTurn() {
+            sel = null;
+            isJumping = false;
+            endTurnBtn.style.display = 'none';
+            turn = turn === 'r' ? 'b' : 'r';
+            render();
+            resetTimer();
+
+            if (turn === 'b') {
+                setTimeout(cpuLogic, 400);
+            } else {
+                let hasMoves = false;
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        if (board[r][c]?.toLowerCase() === 'r') {
+                            if (getMoves(r, c).length > 0) hasMoves = true;
+                        }
+                    }
+                }
+                if (!hasMoves) statusEl.textContent = "AI Wins!";
+            }
+        }
+
+        function cpuLogic() {
+            if (turn !== 'b') return;
+
+            let allMoves = [];
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (board[r][c]?.toLowerCase() === 'b') {
+                        const jumps = getMoves(r, c, true);
+                        if (jumps.length > 0) {
+                            allMoves.push(...jumps);
+                        } else if (!isJumping) {
+                            allMoves.push(...getMoves(r, c, false));
+                        }
+                    }
+                }
+            }
+
+            if (allMoves.length === 0) {
+                statusEl.textContent = "You Win!";
+                return;
+            }
+
+            const jumps = allMoves.filter(m => m.isJump);
+            const chosen = jumps.length > 0 ? jumps[Math.floor(Math.random() * jumps.length)] : allMoves[Math.floor(Math.random() * allMoves.length)];
+
+            applyMove(chosen);
+        }
+
+        function resetTimer() {
+            clearInterval(timerId);
+            const m = document.getElementById('mode').value;
+            if (m === 'classic' || m === 'giveaway') {
+                document.getElementById('timer').textContent = "";
+                return;
+            }
+            let left = m === 'blitz' ? 15 : 25;
+            document.getElementById('timer').textContent = `TIME: ${left}s`;
+            timerId = setInterval(() => {
+                left--;
+                document.getElementById('timer').textContent = `TIME: ${left}s`;
+                if (left <= 0) finalizeTurn();
+            }, 1000);
+        }
+
+        function render() {
+            boardEl.innerHTML = '';
+            const hints = sel ? getMoves(sel[0], sel[1], isJumping) : [];
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = `cell ${(r+c)%2===0 ? 'light' : 'dark'}`;
+                    if (sel && sel[0] === r && sel[1] === c) cell.classList.add('selected');
+                    if (hints.some(h => h.to[0] === r && h.to[1] === c)) cell.classList.add('hint');
+                    cell.onclick = () => handleClick(r, c);
+
+                    const p = board[r][c];
+                    if (p) {
+                        cell.innerHTML = getPieceSVG(p);
+                        if (p === 'R' || p === 'B') {
+                            const cr = document.createElement('div');
+                            cr.className = 'king-crown';
+                            cr.textContent = '👑';
+                            cell.appendChild(cr);
+                        }
+                    }
+                    boardEl.appendChild(cell);
+                }
+            }
+
+            statusEl.textContent = turn === 'r' ? "Your Turn" : "AI Thinking...";
+        }
+
+        document.getElementById('theme').onchange = (e) => {
+            const t = THEMES[e.target.value];
+            document.documentElement.style.setProperty('--light-cell', t.light);
+            document.documentElement.style.setProperty('--dark-cell', t.dark);
+            document.documentElement.style.setProperty('--accent', t.accent || '#79d3ff');
+            document.getElementById('frame').style.background = t.frame || '#2c2118';
+            document.getElementById('frame').style.borderColor = t.frame || '#3d2a1f';
+            document.body.style.background = t.bg || '#0d1117';
+        };
+
+        document.getElementById('resetBtn').onclick = init;
+        document.getElementById('mode').onchange = init;
+        endTurnBtn.onclick = finalizeTurn;
+
+        init();
+    </script>
+    </main>
+</body>
+</html>
