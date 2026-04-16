@@ -7,7 +7,10 @@
     <link rel="stylesheet" href="../assets/css/site.css?v=20260416" />
     <style>
       .games-shell{display:grid;gap:1rem}
-      .games-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+      .games-intro{display:grid;gap:1.1rem}
+      .games-intro h1{margin-bottom:.35rem}
+      .games-intro p{margin-top:0}
+      .games-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1rem}
       .games-card{display:grid;gap:.35rem;padding:1rem;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);text-decoration:none}
       .games-card strong{color:#fff}
       .games-card span{color:var(--muted)}
@@ -23,7 +26,7 @@
           <a class="menu-link active" href="index.html">Games</a>
         </nav>
       </header>
-      <section class="panel stack">
+      <section class="panel stack games-intro">
         <h1>Games</h1>
         <p>Choose a game category.</p>
         <div class="games-grid">
