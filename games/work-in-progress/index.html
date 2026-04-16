@@ -35,6 +35,54 @@
         color: var(--text);
       }
 
+      .menu-group {
+        position: relative;
+      }
+
+      .menu-group > a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .submenu {
+        position: absolute;
+        top: calc(100% + 0.45rem);
+        left: 0;
+        min-width: 15rem;
+        display: grid;
+        gap: 0.35rem;
+        padding: 0.65rem;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(8, 16, 28, 0.98);
+        box-shadow: 0 18px 40px rgba(0,0,0,0.3);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-4px);
+        transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+        z-index: 20;
+      }
+
+      .menu-group:hover .submenu,
+      .menu-group:focus-within .submenu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .submenu a {
+        padding: 0.5rem 0.65rem;
+        border-radius: 10px;
+        color: var(--text);
+        text-decoration: none;
+        background: rgba(255,255,255,0.04);
+      }
+
+      .submenu a:hover {
+        background: rgba(134,213,255,0.12);
+      }
+
       @media (max-width: 840px) {
         .wip-hero {
           grid-template-columns: 1fr;
@@ -49,13 +97,17 @@
           <strong>Jason Groce</strong>
           <span>Games, Tools & Projects</span>
         </a>
-        <nav class="site-menu" aria-label="Primary">
+      <nav class="site-menu" aria-label="Primary">
           <a class="menu-link" href="../../index.html">Home</a>
           <a class="menu-link" href="../../utilities/index.html">Utilities</a>
-          <a class="menu-link" href="../index.html">Games</a>
-          <a class="menu-link" href="../old-school-board-games/index.html">Free to Play Board Games</a>
-          <a class="menu-link" href="../firefighter-game/mobile.html">Firefighter</a>
-          <a class="menu-link active" href="index.html">Work In Progress</a>
+          <div class="menu-group">
+            <a class="menu-link active" href="../index.html">Games</a>
+            <div class="submenu" aria-label="Games submenu">
+              <a href="../old-school-board-games/index.html">Board Games</a>
+              <a href="../index.html">Web Based Games</a>
+              <a href="index.html">Work In Progress</a>
+            </div>
+          </div>
         </nav>
       </header>
 
